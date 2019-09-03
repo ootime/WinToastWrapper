@@ -128,6 +128,8 @@ namespace WinToastLib {
         void setExpiration(_In_ INT64 millisecondsFromNow);
         void addAction(_In_ const std::wstring& label);
 		void LoadStringToXml(_In_ const std::wstring& xml);//increase
+		void setInitNotificationData(_In_ std::map<winrt::hstring, winrt::hstring> dataMap);//increase
+		
 
         std::size_t textFieldsCount() const;
         std::size_t actionsCount() const;
@@ -143,6 +145,7 @@ namespace WinToastLib {
         WinToastTemplate::AudioOption audioOption() const;
         Duration duration() const;
 		const std::wstring& getStringToXml() const; //increase
+		const std::map<winrt::hstring, winrt::hstring>& getInitNotificationData() const;
     private:
         std::vector<std::wstring>			_textFields{};
         std::vector<std::wstring>           _actions{};
@@ -154,6 +157,7 @@ namespace WinToastLib {
         WinToastTemplateType                _type{WinToastTemplateType::Text01};
         Duration                            _duration{Duration::System};
 		std::wstring							_string_xml{}; //increase
+		std::map<winrt::hstring, winrt::hstring>		_initDataMap; //increase
     };
 
     class WinToast {
@@ -229,7 +233,9 @@ namespace WinToastLib {
         ComPtr<IToastNotifier> notifier(_In_ bool* succeded) const;
 		ComPtr<IToastNotifier2> notifier2(_In_ bool* succeded) const;//increase
 		ComPtr<IToastNotification2> notification2(ComPtr<IToastNotification> nf) const;//increase
+		ComPtr<IToastNotification4> notification4(ComPtr<IToastNotification> notification) const;
 	    void setError(_Out_ WinToastError* error, _In_ WinToastError value);
+		void setUpTheInitNotificationData(ComPtr<IToastNotification> nf, _In_ std::map<winrt::hstring, winrt::hstring> dataMap);
     };
 }
 #endif // WINTOASTLIB_H

@@ -741,6 +741,9 @@ INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  IWinToastHan
 											if (!appGroup().empty()) {
 												notification2_f->put_Group(WinToastStringWrapper(appGroup()).Get());
 											}
+											if (!toast.getInitNotificationData().empty()) {
+												setUpTheInitNotificationData(notification, toast.getInitNotificationData());
+											}
 										}				
 										//else {
 										hr = notifier->Show(notification.Get());
@@ -784,6 +787,24 @@ ComPtr<IToastNotification2> WinToast::notification2(ComPtr<IToastNotification> n
 	return notification2_temp;
 }
 
+ComPtr<IToastNotification4> WinToast::notification4(ComPtr<IToastNotification> notification) const {
+	ComPtr<IToastNotification4> notification4_temp;
+	notification.As(&notification4_temp);
+	return notification4_temp;
+}
+void  WinToast::setUpTheInitNotificationData(ComPtr<IToastNotification> notification, _In_ std::map<winrt::hstring, winrt::hstring> dataMap) {
+	winrt::param::iterable<winrt::Windows::Foundation::Collections::IKeyValuePair<winrt::hstring, winrt::hstring>> dataiterable(dataMap);
+	using namespace winrt::Windows::UI::Notifications;
+	winrt::Windows::UI::Notifications::NotificationData notif_data(dataiterable);
+	ABI::Windows::UI::Notifications::INotificationData* notif_data_temp_f{
+		nullptr
+	};
+	winrt::copy_to_abi(notif_data, *reinterpret_cast<void**>(&notif_data_temp_f));
+
+	ComPtr<ABI::Windows::UI::Notifications::IToastNotification4> n4 = notification4(notification);
+	n4->put_Data(notif_data_temp_f);
+}
+
 //
 NotificationUpdateResult WinToast::update(_In_ std::map<winrt::hstring, winrt::hstring> dataMap, _Out_ WinToastError* error) {
 	auto succeded = false;
@@ -791,7 +812,7 @@ NotificationUpdateResult WinToast::update(_In_ std::map<winrt::hstring, winrt::h
 	NotificationUpdateResult result;
 	HRESULT hr;
 	if (succeded) {
-		
+				
 		winrt::param::iterable<winrt::Windows::Foundation::Collections::IKeyValuePair<winrt::hstring, winrt::hstring>> dataiterable(dataMap);
 		using namespace winrt::Windows::UI::Notifications;
 		winrt::Windows::UI::Notifications::NotificationData notif_data(dataiterable);
@@ -1156,6 +1177,10 @@ void WinToastTemplate::LoadStringToXml(_In_ const std::wstring & strxml) {
 	_string_xml = strxml;
 }
 
+void WinToastTemplate::setInitNotificationData(_In_ std::map<winrt::hstring, winrt::hstring> dataMap) {
+	_initDataMap = dataMap;
+}
+
 std::size_t WinToastTemplate::textFieldsCount() const {
     return _textFields.size();
 }
@@ -1214,4 +1239,10 @@ WinToastTemplate::Duration WinToastTemplate::duration() const {
 const std::wstring& WinToastTemplate::getStringToXml() const {
 	return _string_xml;
 }
+
+//increase
+const std::map<winrt::hstring, winrt::hstring>& WinToastTemplate::getInitNotificationData() const {
+	return _initDataMap;
+}
+
 

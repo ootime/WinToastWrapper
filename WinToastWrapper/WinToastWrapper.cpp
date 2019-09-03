@@ -84,8 +84,13 @@ int main()
 	//templ.setTextField(text, WinToastTemplate::FirstLine);
 	//templ.addAction(L"Action");
 	templ.setDuration(WinToastTemplate::Duration::Short);
-	templ.LoadStringToXml(L"<toast><visual><binding template=\"ToastGeneric\"><text>Downloadingyourweeklyplaylist...</text><progress title=\"Weeklyplaylist\" value=\"{aavalue}\" valueStringOverride=\"15 / 26songs\" status=\"Downloading...\"/></binding></visual></toast>");
+	templ.LoadStringToXml(L"<toast><visual><binding template=\"ToastGeneric\"><text>Downloadingyourweeklyplaylist...</text><progress title=\"Weeklyplaylist\" value=\"{aavalue}\" valueStringOverride=\"{dj}\" status=\"Downloading...\"/></binding></visual></toast>");
 	templ.addAction(L"Action");
+
+	std::map<winrt::hstring, winrt::hstring> initmap = {
+			{L"dj",L"12/44 2"}
+	};
+	templ.setInitNotificationData(initmap);
 	WinToast::instance()->setAppTag(L"ffff");
 	WinToast::instance()->setAppGroup(L"hhhh");
 	WinToast::instance()->showToast(templ, new CustomHandler());
